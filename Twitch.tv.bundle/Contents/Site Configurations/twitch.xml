@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site 
+        site="http://www-cdn.jtvnw.net"
+        plugin="http://www-cdn.jtvnw.net/widgets/live_embed_player.*.swf"
+        windowWidth="1280"
+        windowHeight="752"
+        agent="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.83 Safari/537.1"
+        initialState="playing"
+        identifier="com.plexapp.plugins.twitchtv"
+        version="2.0">
+
+  <crop x="0" y="0" width="1280" height="720" />
+  <!-- PLAYING -->
+  <state name="playing">
+    <event>
+      <condition>
+        <command name="pause" />
+      </condition>
+      <action>
+        <click x="15" y="745" />
+        <goto state="paused" />
+      </action>
+    </event>
+  </state>
+  <!-- PAUSED -->
+  <state name="paused">
+    <event>
+      <condition>
+        <command name="play" />
+      </condition>
+      <action>
+        <click x="15" y="745" />
+        <goto state="playing" />
+      </action>
+    </event>
+  </state>
+</site>
