@@ -7,7 +7,7 @@ streams, streams filtered by game and from searching for a stream by
 keyword.
 
 Installation
------------------------
+------------
 
 Download a copy of the code from: https://github.com/pejoo/Twitch.tv-Plex-Plugin/zipball/master
 
@@ -16,6 +16,8 @@ Extract the zip file then copy the Twitch.tv.bundle to your Plex Media Server's 
 * OSX: ~/Library/Application Support/Plex Media Server/Plug-ins/
 
 The Twitch.tv video channel should begin appearing on your Plex Media Server now.
+
+**Make sure you have the latest version of Flash properly installed on your system.**
 
 If you find any bugs, please submit them as issues to this GitHub project and 
 I will look into them as soon as I can.
