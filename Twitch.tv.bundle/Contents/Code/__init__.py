@@ -12,12 +12,16 @@ TWITCH_FEATURED_STREAMS = 'https://api.twitch.tv/kraken/streams/featured'
 TWITCH_TOP_GAMES        = 'https://api.twitch.tv/kraken/games/top'
 TWITCH_SEARCH_STREAMS   = 'https://api.twitch.tv/kraken/search/streams'
 TWITCH_LIVE_PLAYER      = 'http://www-cdn.jtvnw.net/widgets/live_embed_player.swf?auto_play=true'
+TWITCH_FOLLOWED_STREAMS = 'https://api.twitch.tv/kraken/users/%s/follows/channels'
+
 
 PAGE_LIMIT              = 100
 CACHE_INTERVAL          = 600
 NAME                    = 'Twitch.tv'
 ART                     = 'art-default.jpg'
 ICON                    = 'icon-default.png'
+SETTINGS  		= 'settings-hi.png'
+
 
 
 ####################################################################################################
@@ -33,16 +37,48 @@ def Start():
     InputDirectoryItem.thumb = R(ICON)
 
 
+def CreatePrefs():
+  Prefs.Add(id='username', type='text', default='', label='Username')
+
 def VideoMainMenu():
     dir = MediaContainer(noCache=True)
     dir.Append(Function(DirectoryItem(FeaturedStreamsMenu, title="Featured Streams", summary="Browse featured streams")))
     dir.Append(Function(DirectoryItem(GamesMenu, title="Games", summary="Browse live streams by game")))
+    dir.Append(Function(DirectoryItem(FollowedMenu, title="Followed", summary="Live Followed Channels")))
     dir.Append(Function(InputDirectoryItem(SearchResults, title="Search", prompt="Search For A Stream", summary="Search for a stream")))
+    dir.Append(PrefsItem(title="Preferences", subtitle="Set Username", thumb=R(SETTINGS)))
     return dir
 
 
+def FollowedMenu(sender, page=None):
+    
+    dir = ObjectContainer(title2="Followed")
+    url = TWITCH_FOLLOWED_STREAMS % Prefs['username'] 
+    channel_arr = []
+    
+    followed = JSON.ObjectFromURL(url, cacheTime=CACHE_INTERVAL)
+    for follow in followed['follows']:
+        channel = follow['channel']
+        ch_name = channel['name']
+        channel_arr.append(ch_name)
+        
+    streams = JSON.ObjectFromURL(TWITCH_LIST_STREAMS+"?%s" % urllib.urlencode({'channel' : ','.join(channel_arr)}))
+          
+    
+    for stream in streams['streams']:    
+        subtitle = "%s\n%s Viewers" % (stream['game'], stream['viewers'])
+        summary = strip_tags(stream['channel']['status'])
+        streamUrl = stream['channel']['url']
+        dir.add(VideoClipObject(url=streamUrl, title=stream['channel']['display_name'], summary=summary, source_title=subtitle, thumb=stream['preview']['large']))
+
+    return dir
+
+        
+
+    
 def FeaturedStreamsMenu(sender, page=None):
-    dir = MediaContainer(viewGroup="List", title2="Featured Streams")
+    dir = ObjectContainer(title2='Featured')
+    #dir = MediaContainer(viewGroup="List", title2="Featured Streams")
     url  = "%s?limit=%s" % (TWITCH_FEATURED_STREAMS, PAGE_LIMIT)
 
     featured = JSON.ObjectFromURL(url, cacheTime=CACHE_INTERVAL)
@@ -50,8 +86,9 @@ def FeaturedStreamsMenu(sender, page=None):
     for stream in featured['featured']:
         subtitle = "%s\n%s Viewers" % (stream['stream']['game'], stream['stream']['viewers'])
         summary = strip_tags(stream['text'])
-        streamUrl = "%s&channel=%s" % (TWITCH_LIVE_PLAYER, stream['stream']['channel']['name'])
-        dir.Append(WebVideoItem(streamUrl, title=stream['stream']['channel']['display_name'], subtitle=subtitle, summary=summary, thumb=stream['stream']['preview']))
+        #streamUrl = "%s&channel=%s" % (TWITCH_LIVE_PLAYER, stream['stream']['channel']['name'])
+        streamUrl = stream['stream']['channel']['url']
+        dir.add(VideoClipObject(url=streamUrl, title=stream['stream']['channel']['display_name'], summary=summary, source_title=subtitle, thumb=stream['stream']['preview']['large']))
 
     return dir
 
@@ -73,28 +110,30 @@ def GamesMenu(sender, page=0):
 
 
 def ChannelMenu(sender, game=None):
-    dir = MediaContainer(title2=sender.itemTitle)
+    dir = ObjectContainer(title2=sender.itemTitle)
+
     url = "%s?game=%s&limit=%s" % (TWITCH_LIST_STREAMS, urllib.quote_plus(game), PAGE_LIMIT)
 
     streams = JSON.ObjectFromURL(url, cacheTime=CACHE_INTERVAL)
 
     for stream in streams['streams']:
         subtitle = " %s Viewers" % stream['viewers']
-        streamURL = "%s&channel=%s" % (TWITCH_LIVE_PLAYER, stream['channel']['name'])
-        dir.Append(WebVideoItem(streamURL, title=stream['channel']['display_name'], summary=stream['channel']['status'], subtitle=subtitle, thumb=stream['channel']['banner'], duration=0))
+        streamURL = stream['channel']['url'] 
+        dir.add(VideoClipObject(url=streamURL, title=stream['channel']['display_name'], summary=stream['channel']['status'], source_title=subtitle, thumb=stream['preview']['large']))
 
     return dir
 
 
 def SearchResults(sender, query=None):
-    dir = MediaContainer()
+    dir = ObjectContainer()
+
 
     results = JSON.ObjectFromURL("%s?query=%s&limit=%s" % (TWITCH_SEARCH_STREAMS, urllib.quote_plus(query), PAGE_LIMIT), cacheTime=CACHE_INTERVAL)
 
     for stream in results['streams']:
         subtitle = "%s\n%s Viewers" % (stream['game'], stream['viewers'])
-        streamURL = "%s&channel=%s" % (TWITCH_LIVE_PLAYER, stream['channel']['name'])
-        dir.Append(WebVideoItem(streamURL, title=stream['channel']['display_name'], summary=stream['channel']['status'], subtitle=subtitle, thumb=stream['channel']['banner']))
+        streamURL = stream['channel']['url'] 
+        dir.add(VideoClipObject(url=streamURL, title=stream['channel']['display_name'], summary=stream['channel']['status'], source_title=subtitle, thumb=stream['preview']['large']))
     if len(dir) > 0:
         return dir
     else:
