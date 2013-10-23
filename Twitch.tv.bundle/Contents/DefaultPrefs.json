@@ -1,0 +1,9 @@
+[
+    {
+        "id": "username",
+        "type": "text",
+        "label": "Username",
+        "default": "" 
+    }
+]
+
