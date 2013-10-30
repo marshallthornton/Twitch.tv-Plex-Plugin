@@ -17,7 +17,5 @@ Extract the zip file then copy the Twitch.tv.bundle to your Plex Media Server's 
 
 The Twitch.tv video channel should begin appearing on your Plex Media Server now.
 
-**Make sure you have the latest version of Flash properly installed on your system.**
-
 If you find any bugs, please submit them as issues to this GitHub project and 
 I will look into them as soon as I can.
