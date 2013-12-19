@@ -9,6 +9,10 @@ keyword.
 Installation
 ------------
 
+>Note: If you encounter a "File not found" or "Failed to open source" error when attempting to play a stream, please install Fix-Twitch.tv-Plex-Plugin located at https://github.com/pencil/Fix-Twitch.tv-Plex-Plugin
+>
+>Once this fix gets applied to the JustinTV service handler located in Services.bundle this extra plugin will not be needed but, since the Services.bundle loads before this plugin, we cannot override the service handler to correct it in this plugin.
+
 Download a copy of the code from: https://github.com/pejoo/Twitch.tv-Plex-Plugin/zipball/master
 
 Extract the zip file then copy the Twitch.tv.bundle to your Plex Media Server's Plugins folder
